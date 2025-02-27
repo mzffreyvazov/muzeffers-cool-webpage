@@ -39,3 +39,28 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Ignore environment variables (important for security)
+.env.local
+.env
+.env.*.local
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore lock files (optional but recommended)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore temp HTML files (if unnecessary)
+individual_post.html
+markdown.html
+other.html

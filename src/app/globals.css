@@ -3,19 +3,515 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #333;
+  --background: #ece6da;
+  --window-bg: #ece6da;
+  --border-color: #000000;
+  --text-primary: #000000;
+  --button-hover: #e5e0d5;
+  --title-gradient-start: #f0eae0;
+  --title-gradient-end: #e5e0d5;
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
   color: var(--foreground);
+  background-color: var(--background);
+  background-image: 
+    repeating-linear-gradient(0deg, transparent 0px, transparent 4px, rgba(0, 0, 0, 0.1) 4px, rgba(0, 0, 0, 0.1) 5px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 4px, rgba(0, 0, 0, 0.1) 4px, rgba(0, 0, 0, 0.1) 5px);
+  background-size: 8px 8px;
+  font-family: var(--font-pixel), monospace;
+}
+
+.terminal-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto auto;
+  border: 1px solid #000;
+  background: transparent;
+  font-family: var(--font-pixel), monospace;
+  font-size: 10px;
+  margin: 0;
+  line-height: 1.5;
+  position: relative;
+}
+
+.terminal-header > div {
+  padding: 4px 8px;
+  border-right: 1px solid #000;
+  background: transparent;
+}
+
+.terminal-header > div:last-child {
+  border-right: none;
+}
+
+.terminal-label {
+  color: #000;
+  font-weight: normal;
+}
+
+.question-mark {
+  cursor: pointer;
+  user-select: none;
+}
+
+.popup {
+  position: absolute;
+  top: 100%;
+  right: 0;
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid #000;
+  padding: 8px;
+  font-size: 10px;
+  z-index: 10;
+  margin-top: 4px;
+}
+
+.welcome-gif {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.gifs-popup {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--background);
+  border: 1px solid #000;
+  padding: 8px;
+  font-size: 10px;
+  z-index: 10;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+/* Main window styles */
+.main-window {
+  @apply w-[480px] border border-black;
+  background-color: var(--window-bg);
+  font-family: var(--font-pixel), monospace;
+  position: absolute;
+  cursor: default;
+  line-height: 1.2;
+  letter-spacing: 0px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);  /* Explicit shadow instead of Tailwind's shadow-md */
+}
+
+.window-title {
+  @apply px-2 py-1 border-b border-black flex items-center;  /* removed justify-between */
+  background: linear-gradient(to right, var(--title-gradient-start), var(--title-gradient-end));
+  font-size: 14px;
+  cursor: move;
+  user-select: none;
+  letter-spacing: 0px;
+}
+
+.close-button {
+  @apply w-5 h-5 border border-black flex items-center justify-center;
+  background-color: var(--window-bg);
+  font-size: 14px;
+  line-height: 1;
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #d4cec3;  /* Darker shade of the window background */
+}
+
+.section-title {
+  background-color: var(--title-gradient-end);
+  @apply px-2 py-1 border-b border-black;
+  font-size: 14px;
+}
+
+.content-area {
+  @apply p-4 space-y-4;
+}
+
+.author-info {
+  @apply border border-black p-2;
+}
+
+.author-info h1 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  letter-spacing: 0px;
+}
+
+.author-info p {
+  font-size: 12px;
+  letter-spacing: 0px;
+}
+
+.post-list {
+  @apply border border-black;
+}
+
+.post-item {
+  @apply px-2 py-1 hover:bg-gray-200;
+  font-size: 12px;
+  letter-spacing: 0px;
+}
+
+.post-item:hover {
+  background-color: var(--button-hover);
+}
+
+/* .guestbook {
+  @apply border border-black;
+}
+
+.guestbook-form {
+  @apply p-2 space-y-2;
+  font-size: 12px;
+}
+
+.guestbook-form input,
+.guestbook-form textarea {
+  @apply px-2 py-1 border border-black w-full;
+  font-family: var(--font-pixel), monospace;
+  font-size: 12px;
+  letter-spacing: 0px;
+  background-color: white;
+}
+
+.guestbook-form button {
+  @apply px-4 py-1 border border-black hover:bg-gray-200;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.guestbook-form button:hover {
+  background-color: var(--button-hover);
+} */
+
+.links-section {
+  @apply border border-black;
+}
+
+.link-item {
+  @apply px-2 py-1 hover:bg-gray-200;
+  font-size: 12px;
+  letter-spacing: 0px;
+}
+
+.link-item:hover {
+  background-color: var(--button-hover);
+}
+
+.visitor-counter {
+  @apply border border-black p-2 flex items-center justify-between;
+  font-size: 14px;
+  letter-spacing: 0px;
+}
+
+.counter-display {
+  @apply bg-black text-[#32CD32] px-2 py-1;
+  font-family: var(--font-pixel), monospace;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.poolsuite-footer {
+  @apply flex items-stretch border-t border-black;
+  background: var(--window-bg);
+}
+
+.poolsuite-link {
+  @apply flex flex-col items-center gap-1 transition-opacity duration-200;
+  opacity: 0.8;
+  position: relative;
+  padding: 16px 24px;
+  margin: -1px 0;  /* To compensate for the top border */
+  min-width: 100px; /* Add fixed minimum width */
+  border-right: 1px solid var(--border-color);
+}
+
+.poolsuite-link:last-child {
+  border-right: none;
+}
+
+.poolsuite-link span {
+  @apply text-[8px] tracking-widest font-bold;
+  color: var(--text-primary);
+}
+
+.poolsuite-link:hover {
+  opacity: 1;
+}
+
+.poolsuite-link:hover .poolsuite-icon {
+  transform: translateY(-2px);
+}
+
+.music-player {
+  position: fixed;
+  width: 240px; /* reduced from 320px */
+  background: var(--window-bg);
+  border: 1px solid #000;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  font-family: var(--font-pixel), monospace;
+  font-size: 12px;
+}
+
+.player-title {
+  background: linear-gradient(to right, var(--title-gradient-start), var(--title-gradient-end));
+  padding: 2px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  border-bottom: 1px solid #000;
+  height: 20px;
+}
+
+.track-info {
+  padding: 6px;
+  font-size: 10px;
+  line-height: 1.2;
+  border-bottom: 1px solid #000;
+}
+
+.player-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px;
+  gap: 4px;
+}
+
+.control-button {
+  width: 24px; /* reduced from 32px */
+  height: 24px; /* reduced from 32px */
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--window-bg);
+  transition: background-color 0.2s;
+  font-size: 10px;
+}
+
+.control-button:hover {
+  background: var(--button-hover);
+}
+
+.control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.volume-control {
+  padding: 4px 6px;
+  border-bottom: 1px solid #000;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Override and update volume slider styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1px;
+  background: #000;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 4px;
+  height: 8px;
+  background: #000;
+  border: 1px solid #000;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 4px;
+  height: 8px;
+  background: #000;
+  border: 1px solid #000;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.player-content {
+  padding: 16px;
+  color: #30ff30;
+}
+
+.album-art {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.placeholder-art {
+  width: 100%;
+  height: 200px;
+  background: #111;
+  border: 1px solid #30ff30;
+}
+
+.player-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.song-title {
+  font-weight: bold;
+}
+
+.artist-name {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.control-buttons button {
+  background: none;
+  border: 1px solid #30ff30;
+  color: #30ff30;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.control-buttons button:hover {
+  background: #30ff30;
+  color: #000000;
+}
+
+/* Volume slider styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: #000;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.music-player canvas {
+  image-rendering: pixelated;
+  border-bottom: 1px solid #000;
+  background-color: #e5e0d5;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.playlist-selector {
+  position: relative;
+  background: var(--window-bg);
+}
+
+.playlist-selector button:hover {
+  background-color: var(--button-hover);
+}
+
+.playlist-selector .dropdown-menu {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.piano-key {
+  @apply border border-black px-2 py-1 text-[10px] hover:bg-[var(--button-hover)];
+  min-width: 24px;
+}
+
+.white-key {
+  @apply bg-white text-black;
+}
+
+.black-key {
+  @apply bg-black text-white;
+}
+
+.ladies-window {
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+  font-family: var(--font-pixel), monospace;
+}
+
+.ladies-gif {
+  image-rendering: pixelated;
+  transition: transform 0.2s;
+}
+
+.ladies-gif:hover {
+  transform: scale(1.05);
+}
+
+.construction-notice {
+  z-index: 1000;
+}
+
+.construction-notice .window-title {
+  background-color: #1a1a1a;
+  color: #4ade80;
+  padding: 0.5rem;
+  cursor: move;
+  border: 1px solid #4ade80;
+  border-bottom: none;
+}
+
+.construction-notice .close-button {
+  color: #4ade80;
+  background: none;
+  border: none;
+  cursor: pointer;
+  float: right;
+  font-size: 1.2rem;
+  padding: 0 0.5rem;
+}
+
+.construction-notice .close-button:hover {
+  color: #fff;
 }
