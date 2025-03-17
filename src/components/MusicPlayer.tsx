@@ -16,12 +16,6 @@ interface MusicPlayerProps {
   onClose: () => void
 }
 
-interface SpotifyTrack {
-  uri: string;
-  name: string;
-  artists: { name: string }[];
-}
-
 interface PlaylistType {
   id: string;
   name: string;
@@ -55,20 +49,24 @@ interface SpotifyTrackWindow {
   };
 }
 
-interface SpotifyPlayerState {
-  track_window: SpotifyTrackWindow;
-  paused: boolean;
-}
-
 interface SpotifyPlaylistOwner {
   id: string;
 }
 
-interface SpotifyPlaylistItem {
-  id: string;
-  name: string;
-  uri: string;
-  owner: SpotifyPlaylistOwner;
+interface SpotifyEventData {
+  message: string;
+  device_id?: string;
+}
+
+interface SpotifyAPIPlaylistResponse {
+  items: {
+    id: string;
+    name: string;
+    uri: string;
+    owner: {
+      id: string;
+    };
+  }[];
 }
 
 export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
@@ -89,14 +87,14 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false)
 
   const fetchPlaylists = async () => {
-    const token = localStorage.getItem('spotify_token')
-    if (!token) return
+    const storedToken = localStorage.getItem('spotify_token')
+    if (!storedToken) return
 
     try {
       // First fetch user profile to get user ID
       const userResponse = await fetch('https://api.spotify.com/v1/me', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${storedToken}`
         }
       })
 
@@ -107,22 +105,22 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       // Then fetch playlists
       const response = await fetch('https://api.spotify.com/v1/me/playlists', {
         headers: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${storedToken}`
         }
       })
 
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
-      const data = await response.json()
+      const data = (await response.json()) as SpotifyAPIPlaylistResponse
       
       // Filter playlists to only include those owned by the user
-      const userPlaylists = data.items.filter((playlist: any) => 
-        playlist.owner.id === userId
-      ).map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        uri: item.uri
-      }))
+      const userPlaylists = data.items
+        .filter((playlist) => playlist.owner.id === userId)
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          uri: item.uri
+        }))
 
       setPlaylists(userPlaylists)
     } catch (error: unknown) {
@@ -224,16 +222,16 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       }) as unknown as SpotifyPlayer;  // Type assertion here
 
       // Error handling
-      player.addListener('initialization_error', ({ message }) => {
-        console.error('Failed to initialize:', message)
+      player.addListener('initialization_error', (data: SpotifyEventData) => {
+        console.error('Failed to initialize:', data.message)
       })
-      player.addListener('authentication_error', ({ message }) => {
-        console.error('Failed to authenticate:', message)
+      player.addListener('authentication_error', (data: SpotifyEventData) => {
+        console.error('Failed to authenticate:', data.message)
         localStorage.removeItem('spotify_token')
         setToken(null)
       })
-      player.addListener('account_error', ({ message }) => {
-        console.error('Failed to validate Spotify account:', message)
+      player.addListener('account_error', (data: SpotifyEventData) => {
+        console.error('Failed to validate Spotify account:', data.message)
       })
 
       // Ready handling

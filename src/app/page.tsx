@@ -59,7 +59,7 @@ export default function Home() {
 
   // Get current date and format it
   const now = new Date();
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  // const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   // const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
   
   // const dayName = days[now.getDay()];
@@ -68,9 +68,9 @@ export default function Home() {
   
   // Get time in 12-hour format
   const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const ampm = hours >= 12 ? 'pm' : 'am';
-  const hours12 = hours % 12 || 12;
+  // const minutes = now.getMinutes();
+  // const ampm = hours >= 12 ? 'pm' : 'am';
+  // const hours12 = hours % 12 || 12;
   // const timeString = `${hours12}:${minutes.toString().padStart(2, '0')}${ampm}`;
 
   return (
