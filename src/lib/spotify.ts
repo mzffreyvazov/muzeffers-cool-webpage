@@ -1,6 +1,10 @@
-const CLIENT_ID = '6c5300079e5740d1b6094e971652fb90'
-const REDIRECT_URI = 'http://localhost:3000/callback'
-const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize'
+if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_REDIRECT_URI || !process.env.SPOTIFY_AUTH_ENDPOINT) {
+  throw new Error('Missing required Spotify environment variables');
+}
+
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI
+const AUTH_ENDPOINT = process.env.SPOTIFY_AUTH_ENDPOINT
 const RESPONSE_TYPE = 'token'
 
 const SCOPES = [
@@ -18,6 +22,10 @@ const SCOPES = [
 export const loginUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&response_type=${RESPONSE_TYPE}&show_dialog=true`
 
 const getAccessToken = async () => {
+  if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
+    throw new Error('Missing Spotify credentials in environment variables');
+  }
+
   const basic = Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')
   
   const response = await fetch('https://accounts.spotify.com/api/token', {
