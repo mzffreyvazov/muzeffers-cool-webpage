@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
 export default function TerminalHeader() {
+  const [currentTime, setCurrentTime] = useState<string>('')
+  const [currentDate, setCurrentDate] = useState<string>('')
   const [showPopup, setShowPopup] = useState(false);
   const [showGifsPopup, setShowGifsPopup] = useState(false);
   
@@ -11,6 +13,28 @@ export default function TerminalHeader() {
   const questionMarkRef = useRef<HTMLSpanElement>(null);
   const gifsRef = useRef<HTMLDivElement>(null);
   const gifsPopupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Update time and date initially and every minute
+    const updateDateTime = () => {
+      const now = new Date();
+      const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+      const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+      
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      const hours12 = hours % 12 || 12;
+      
+      setCurrentTime(`${hours12}:${minutes.toString().padStart(2, '0')}${ampm}`);
+      setCurrentDate(`${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} 1984`);
+    };
+
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,22 +58,6 @@ export default function TerminalHeader() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showPopup, showGifsPopup]);
-
-  // Get current date and format it
-  const now = new Date();
-  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-  
-  const dayName = days[now.getDay()];
-  const day = now.getDate();
-  const month = now.getMonth();
-  
-  // Get time in 12-hour format
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const ampm = hours >= 12 ? 'pm' : 'am';
-  const hours12 = hours % 12 || 12;
-  const timeString = `${hours12}:${minutes.toString().padStart(2, '0')}${ampm}`;
 
   return (
     <div className="terminal-header">
@@ -101,9 +109,9 @@ export default function TerminalHeader() {
           </div>
         )}
       </div>
-      <div>{timeString}</div>
+      <div>{currentTime}</div>
       <div>
-        {dayName} {day} {months[month]} 1984{' '}
+        {currentDate}{' '}
         <span 
           ref={questionMarkRef}
           className="question-mark" 
