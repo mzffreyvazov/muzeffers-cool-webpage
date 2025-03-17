@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Muzeffer's Blog</title>
+        <title>Muzeffer&lsquo;s Blog</title>
         <meta name="description" content="Personal blog of Muzeffer" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>

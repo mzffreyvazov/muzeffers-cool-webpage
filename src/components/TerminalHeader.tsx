@@ -61,7 +61,7 @@ export default function TerminalHeader() {
 
   return (
     <div className="terminal-header">
-      <div className="terminal-label">muzeffer's cool webpage</div>
+      <div className="terminal-label">muzeffer&lsquo;s cool webpage</div>
       <div>mzffreyazov2005@gmail.com</div>
       <div 
         ref={gifsRef}
@@ -105,7 +105,7 @@ export default function TerminalHeader() {
         />
         {showGifsPopup && (
           <div ref={gifsPopupRef} className="gifs-popup">
-            pretty cool, isn't it?
+            pretty cool, isn&lsquo;t it?
           </div>
         )}
       </div>
@@ -121,7 +121,7 @@ export default function TerminalHeader() {
         </span>
         {showPopup && (
           <div ref={popupRef} className="popup">
-            yeah, i'm stuck in those years... good old times..
+            yeah, i&lsquo;m stuck in those years... good old times..
           </div>
         )}
       </div>

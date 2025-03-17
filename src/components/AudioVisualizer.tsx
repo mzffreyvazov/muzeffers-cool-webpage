@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef} from 'react'
 
 interface AudioVisualizerProps {
   isPlaying: boolean;
@@ -32,7 +32,7 @@ export function AudioVisualizer({ isPlaying }: AudioVisualizerProps) {
       return (wave1 * 0.4 + wave2 * 0.4 + wave3 * 0.2) * canvas.height * 0.9
     }
 
-    const draw = (timestamp: number) => {
+    const draw = () => {
       ctx.fillStyle = '#e5e0d5'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 

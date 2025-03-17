@@ -28,6 +28,49 @@ interface PlaylistType {
   uri: string;
 }
 
+interface SpotifyPlayer {
+  _options: { 
+    name: string;
+    getOAuthToken: (cb: (token: string) => void) => void;
+  };
+  connect: () => Promise<boolean>;
+  disconnect: () => void;
+  addListener: (event: string, callback: (data: any) => void) => void;
+  removeListener: (event: string, callback: (data: any) => void) => void;
+  getCurrentState: () => Promise<any>;
+  setVolume: (volume: number) => Promise<void>;
+  pause: () => Promise<void>;
+  resume: () => Promise<void>;
+  togglePlay: () => Promise<void>;
+  seek: (position_ms: number) => Promise<void>;
+  previousTrack: () => Promise<void>;
+  nextTrack: () => Promise<void>;
+}
+
+interface SpotifyTrackWindow {
+  current_track: {
+    name: string;
+    artists: { name: string }[];
+    uri: string;
+  };
+}
+
+interface SpotifyPlayerState {
+  track_window: SpotifyTrackWindow;
+  paused: boolean;
+}
+
+interface SpotifyPlaylistOwner {
+  id: string;
+}
+
+interface SpotifyPlaylistItem {
+  id: string;
+  name: string;
+  uri: string;
+  owner: SpotifyPlaylistOwner;
+}
+
 export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
   const [position, setPosition] = useState({ x: 300, y: 200 })
   const [isDragging, setIsDragging] = useState(false)
@@ -35,44 +78,15 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
   const playerRef = useRef<HTMLDivElement>(null)
 
   const [token, setToken] = useState<string | null>(null)
-  const [player, setPlayer] = useState<any>(null)
+  const [player, setPlayer] = useState<SpotifyPlayer | null>(null)
   const [deviceId, setDeviceId] = useState<string>('')
   const [isPaused, setIsPaused] = useState(true)
-  const [currentTrack, setCurrentTrack] = useState<any>(null)
-  const [tracks, setTracks] = useState<SpotifyTrack[]>([])
+  const [currentTrack, setCurrentTrack] = useState<SpotifyTrackWindow['current_track'] | null>(null)
   const [volume, setVolume] = useState(50)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [playlists, setPlaylists] = useState<PlaylistType[]>([])
   const [selectedPlaylist, setSelectedPlaylist] = useState<string>('liked') // 'liked' for liked songs
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false)
-
-  const fetchUserTracks = async () => {
-    const token = localStorage.getItem('spotify_token')
-    if (!token) return
-
-    try {
-      const response = await fetch('https://api.spotify.com/v1/me/player', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
-      if (data && Array.isArray(data.items)) {
-        setTracks(data.items.map((item: any) => item.track))
-      }
-    } catch (error: any) {
-      console.error('Error fetching tracks:', error)
-      if (error.message.includes('401')) {
-        localStorage.removeItem('spotify_token')
-        setToken(null)
-      }
-    }
-  }
 
   const fetchPlaylists = async () => {
     const token = localStorage.getItem('spotify_token')
@@ -111,8 +125,9 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       }))
 
       setPlaylists(userPlaylists)
-    } catch (error: any) {
-      console.error('Error fetching playlists:', error)
+    } catch (error: unknown) {
+      const err = error as Error
+      console.error('Error fetching playlists:', err)
     }
   }
 
@@ -179,15 +194,16 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       audioRef.current = new Audio(randomTrack.preview_url); // Assuming you have a preview URL
       audioRef.current.play();
 
-    } catch (error: any) {
-      console.error('Detailed error:', error);
+    } catch (error: unknown) {
+      const err = error as Error
+      console.error('Detailed error:', err);
       
-      if (error.message.includes('401')) {
+      if (err.message.includes('401')) {
         alert('Session expired. Please reconnect to Spotify.');
         localStorage.removeItem('spotify_token');
         setToken(null);
       } else {
-        alert(`Playback error: ${error.message}. Please try again.`);
+        alert(`Playback error: ${err.message}. Please try again.`);
       }
     }
   }
@@ -205,7 +221,7 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       const player = new window.Spotify.Player({
         name: 'Web Playback SDK',
         getOAuthToken: cb => { cb(token) }
-      })
+      }) as unknown as SpotifyPlayer;  // Type assertion here
 
       // Error handling
       player.addListener('initialization_error', ({ message }) => {
@@ -259,7 +275,6 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
   useEffect(() => {
     const token = localStorage.getItem('spotify_token')
     if (token) {
-      fetchUserTracks()
       fetchPlaylists()
       if (window.Spotify) {
         initializePlayer()
@@ -302,6 +317,17 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
       playerInitialized: !!player
     })
   }, [isPaused, currentTrack, deviceId, player])
+
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://sdk.scdn.co/spotify-player.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
 
   const handleLogin = () => {
     window.location.href = loginUrl
@@ -487,7 +513,6 @@ export default function MusicPlayer({ isOpen, onClose }: MusicPlayerProps) {
           </div>
         </>
       )}
-      <script src="https://sdk.scdn.co/spotify-player.js"></script>
     </div>
   )
 }
